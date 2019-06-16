@@ -1,5 +1,6 @@
 package br.com.fcamacho.springrestapi.terminal;
 
+import br.com.fcamacho.springrestapi.genericValidation.ValidationErrorDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.transaction.Transactional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -62,7 +65,7 @@ public class TerminalControllerIntegrationTest {
         assertThat(terminalFromRequest.getVerfm(), is("PWWINV"));
 
         // Verifying that the data from the database is correct
-        Terminal terminalFromDatabase = terminalRepository.findById(44332211).get();
+        Terminal terminalFromDatabase = terminalRepository.findByLogic(44332211).get();
         assertThat(terminalFromDatabase.getLogic(), is(44332211));
         assertThat(terminalFromDatabase.getSerial(), is("123"));
         assertThat(terminalFromDatabase.getModel(), is("PWWIN"));
@@ -75,4 +78,21 @@ public class TerminalControllerIntegrationTest {
         assertThat(terminalFromDatabase.getVerfm(), is("PWWINV"));
     }
 
+    @Test
+    public void shouldRejectPostIfLogicIsDuplicated() {
+        String terminalString = "44332211;123;PWWIN;0;F04A2E4088B;4;8.00b3;1;16777216;PWWINV";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_HTML);
+        HttpEntity<String> request = new HttpEntity<>(terminalString, headers);
+
+        restTemplate.postForObject(baseUrl, request, Terminal.class);
+        ValidationErrorDTO validationErrorDTO = restTemplate.postForObject(baseUrl, request, ValidationErrorDTO.class);
+
+        assertTrue(validationErrorDTO.hasErrors());
+        assertThat(validationErrorDTO.getErrors(), hasSize(0));
+        assertThat(validationErrorDTO.getFieldErrors(), hasSize(1));
+        assertThat(validationErrorDTO.getFieldErrors().get(0).getField(), is("logic"));
+        assertThat(validationErrorDTO.getFieldErrors().get(0).getMessage(), is("This property must be unique"));
+    }
 }

@@ -9,6 +9,12 @@ public class TerminalStringValidatorService {
 
     private static final int NUM_FIELDS = 10;
 
+    private final TerminalService terminalService;
+
+    public TerminalStringValidatorService(TerminalService terminalService) {
+        this.terminalService = terminalService;
+    }
+
     ValidationErrorDTO performValidations(String terminalString) {
         String[] properties = StringUtils.delimitedListToStringArray(terminalString, ";");
         ValidationErrorDTO validationErrorDTO = new ValidationErrorDTO();
@@ -37,6 +43,9 @@ public class TerminalStringValidatorService {
         }
         else if (isNotAnInteger(logic)) {
             validationErrorDTO.addFieldError("logic", "Should be an integer value");
+        }
+        else if (terminalService.terminalExists(Integer.parseInt(logic))) {
+            validationErrorDTO.addFieldError("logic", "This property must be unique");
         }
 
         if (StringUtils.isEmpty(serial)) {

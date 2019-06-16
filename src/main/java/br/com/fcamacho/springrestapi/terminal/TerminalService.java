@@ -39,4 +39,8 @@ public class TerminalService {
 
         return Integer.valueOf(s);
     }
+
+    public boolean terminalExists(Integer logic) {
+        return terminalRepository.existsByLogic(logic);
+    }
 }

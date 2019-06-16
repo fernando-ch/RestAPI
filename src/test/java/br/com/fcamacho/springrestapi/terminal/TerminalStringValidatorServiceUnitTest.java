@@ -1,19 +1,33 @@
 package br.com.fcamacho.springrestapi.terminal;
 
 import br.com.fcamacho.springrestapi.genericValidation.ValidationErrorDTO;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 public class TerminalStringValidatorServiceUnitTest {
 
     private static final int NUM_FIELDS = 10;
 
-    private TerminalStringValidatorService terminalStringValidatorService = new TerminalStringValidatorService();
+    @InjectMocks
+    private TerminalStringValidatorService terminalStringValidatorService;
+
+    @Mock
+    private TerminalService terminalServiceMock;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void shouldAddErrorIfNotAllCommasArePresent() {
@@ -58,6 +72,21 @@ public class TerminalStringValidatorServiceUnitTest {
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(1));
         assertThat(validationErrorDTO.getFieldErrors().get(0).getField(), is("logic"));
         assertThat(validationErrorDTO.getFieldErrors().get(0).getMessage(), is("This property is required"));
+    }
+
+    @Test
+    public void shouldAddErrorIfLogicIsDuplicated() {
+        String terminalString = "44332211;123;PWWIN;0;F04A2E4088B;4;8.00b3;0;16777216;PWWIN";
+
+        when(terminalServiceMock.terminalExists(44332211)).thenReturn(true);
+
+        ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
+
+        assertTrue(validationErrorDTO.hasErrors());
+        assertThat(validationErrorDTO.getErrors(), hasSize(0));
+        assertThat(validationErrorDTO.getFieldErrors(), hasSize(1));
+        assertThat(validationErrorDTO.getFieldErrors().get(0).getField(), is("logic"));
+        assertThat(validationErrorDTO.getFieldErrors().get(0).getMessage(), is("This property must be unique"));
     }
 
     @Test
