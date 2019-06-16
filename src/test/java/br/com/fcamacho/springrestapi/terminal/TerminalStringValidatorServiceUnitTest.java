@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TerminalStringValidatorServiceUnitTest {
 
-    private static final int NUM_COMMAS = 10;
+    private static final int NUM_FIELDS = 10;
 
     private TerminalStringValidatorService terminalStringValidatorService = new TerminalStringValidatorService();
 
@@ -21,7 +21,7 @@ public class TerminalStringValidatorServiceUnitTest {
         ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
 
         assertTrue(validationErrorDTO.hasErrors());assertThat(validationErrorDTO.getErrors(), hasSize(1));
-        assertThat(validationErrorDTO.getErrors().get(0), is("Not all comma separated values are present, should be " + NUM_COMMAS));
+        assertThat(validationErrorDTO.getErrors().get(0), is("Not all comma separated values are present, should be " + NUM_FIELDS));
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
     }
 
@@ -32,7 +32,7 @@ public class TerminalStringValidatorServiceUnitTest {
         
         assertTrue(validationErrorDTO.hasErrors());
         assertThat(validationErrorDTO.getErrors(), hasSize(1));
-        assertThat(validationErrorDTO.getErrors().get(0), is("Too many comma separated values are present, should be " + NUM_COMMAS));
+        assertThat(validationErrorDTO.getErrors().get(0), is("Too many comma separated values are present, should be " + NUM_FIELDS));
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
     }
 
@@ -178,7 +178,7 @@ public class TerminalStringValidatorServiceUnitTest {
         ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
 
         assertTrue(validationErrorDTO.hasErrors());assertThat(validationErrorDTO.getErrors(), hasSize(1));
-        assertThat(validationErrorDTO.getErrors().get(0), is("Not all comma separated values are present, should be " + NUM_COMMAS));
+        assertThat(validationErrorDTO.getErrors().get(0), is("Not all comma separated values are present, should be " + NUM_FIELDS));
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
     }
 
