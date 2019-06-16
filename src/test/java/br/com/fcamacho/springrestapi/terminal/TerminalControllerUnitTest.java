@@ -29,6 +29,9 @@ public class TerminalControllerUnitTest {
     @MockBean
     private TerminalStringValidatorService terminalStringValidatorServiceMock;
 
+    @MockBean
+    private TerminalService terminalService;
+
     private static final String BASE_URL = "/v1/terminal";
 
     @Test
@@ -72,5 +75,43 @@ public class TerminalControllerUnitTest {
                 .andExpect(jsonPath("$.fieldErrors[1].message", is("error message 2")));
 
         Mockito.verify(terminalStringValidatorServiceMock, only()).performValidations(body);
+    }
+
+    @Test
+    public void shouldReturnANewTerminalIfAllFieldsAreValid() throws Exception {
+        String body = "123";
+        when(terminalStringValidatorServiceMock.performValidations(body)).thenReturn(new ValidationErrorDTO());
+
+        Terminal terminal = new Terminal();
+        terminal.setLogic(44332211);
+        terminal.setSerial("123");
+        terminal.setModel("PWWIN");
+        terminal.setSam(0);
+        terminal.setPtid("F04A2E4088B");
+        terminal.setPlat(4);
+        terminal.setVersion("8.00b3");
+        terminal.setMxr(1);
+        terminal.setMxf(16777216);
+        terminal.setVerfm("PWWINV");
+
+        when(terminalService.createTerminal(body)).thenReturn(terminal);
+
+        MockHttpServletRequestBuilder builder = post(BASE_URL).contentType(MediaType.TEXT_HTML_VALUE).content(body);
+        this.mockMvc.perform(builder)
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.logic", is(44332211)))
+                .andExpect(jsonPath("$.serial", is("123")))
+                .andExpect(jsonPath("$.model", is("PWWIN")))
+                .andExpect(jsonPath("$.sam", is(0)))
+                .andExpect(jsonPath("$.ptid", is("F04A2E4088B")))
+                .andExpect(jsonPath("$.plat", is(4)))
+                .andExpect(jsonPath("$.version", is("8.00b3")))
+                .andExpect(jsonPath("$.mxr", is(1)))
+                .andExpect(jsonPath("$.mxf", is(16777216)))
+                .andExpect(jsonPath("$.verfm", is("PWWINV")));
+
+        Mockito.verify(terminalStringValidatorServiceMock, only()).performValidations(body);
+        Mockito.verify(terminalService, only()).createTerminal(body);
     }
 }
