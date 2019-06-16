@@ -6,6 +6,7 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TerminalStringValidatorServiceUnitTest {
@@ -145,19 +146,19 @@ public class TerminalStringValidatorServiceUnitTest {
 
     @Test
     public void shouldAddErrorIfVersionIsNotPresent() {
-        String terminalString = "44332211;123;PWWIN;0;F04A2E4088B;4;8.00b3;0;16777216;";
+        String terminalString = "44332211;123;PWWIN;0;F04A2E4088B;4;;0;16777216;PWWIN";
         ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
 
         assertTrue(validationErrorDTO.hasErrors());
         assertThat(validationErrorDTO.getErrors(), hasSize(0));
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(1));
-        assertThat(validationErrorDTO.getFieldErrors().get(0).getField(), is("verfm"));
+        assertThat(validationErrorDTO.getFieldErrors().get(0).getField(), is("version"));
         assertThat(validationErrorDTO.getFieldErrors().get(0).getMessage(), is("This property is required"));
     }
 
     @Test
     public void shouldAddMoreThenOnErrorIfMoreThanOneFieldIsInvalid() {
-        String terminalString = ";123;PWWIN;0;F04A2E4088B;4;8.00b3;0;167d77216;";
+        String terminalString = ";123;PWWIN;0;F04A2E4088B;4;;0;167d77216;PWWIN";
         ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
 
         assertTrue(validationErrorDTO.hasErrors());
@@ -165,10 +166,10 @@ public class TerminalStringValidatorServiceUnitTest {
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(3));
         assertThat(validationErrorDTO.getFieldErrors().get(0).getField(), is("logic"));
         assertThat(validationErrorDTO.getFieldErrors().get(0).getMessage(), is("This property is required"));
-        assertThat(validationErrorDTO.getFieldErrors().get(1).getField(), is("mxf"));
-        assertThat(validationErrorDTO.getFieldErrors().get(1).getMessage(), is("Should be an integer value"));
-        assertThat(validationErrorDTO.getFieldErrors().get(2).getField(), is("verfm"));
-        assertThat(validationErrorDTO.getFieldErrors().get(2).getMessage(), is("This property is required"));
+        assertThat(validationErrorDTO.getFieldErrors().get(1).getField(), is("version"));
+        assertThat(validationErrorDTO.getFieldErrors().get(1).getMessage(), is("This property is required"));
+        assertThat(validationErrorDTO.getFieldErrors().get(2).getField(), is("mxf"));
+        assertThat(validationErrorDTO.getFieldErrors().get(2).getMessage(), is("Should be an integer value"));
     }
 
     @Test
@@ -178,6 +179,26 @@ public class TerminalStringValidatorServiceUnitTest {
 
         assertTrue(validationErrorDTO.hasErrors());assertThat(validationErrorDTO.getErrors(), hasSize(1));
         assertThat(validationErrorDTO.getErrors().get(0), is("Not all comma separated values are present, should be " + NUM_COMMAS));
+        assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
+    }
+
+    @Test
+    public void shouldNotAddErrorIfAllFieldsAreValid() {
+        String terminalString = "44332211;123;PWWIN;0;F04A2E4088B;4;8.00b3;0;16777216;PWWIN";
+        ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
+
+        assertFalse(validationErrorDTO.hasErrors());
+        assertThat(validationErrorDTO.getErrors(), hasSize(0));
+        assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
+    }
+
+    @Test
+    public void shouldNotAddErrorIfOnlyOptionFieldAreMissing() {
+        String terminalString = "44332211;123;PWWIN;;;;8.00b3;;;";
+        ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
+
+        assertFalse(validationErrorDTO.hasErrors());
+        assertThat(validationErrorDTO.getErrors(), hasSize(0));
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
     }
 }

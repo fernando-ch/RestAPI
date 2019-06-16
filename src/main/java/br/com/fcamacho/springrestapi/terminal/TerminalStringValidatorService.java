@@ -28,9 +28,9 @@ public class TerminalStringValidatorService {
         String model = properties[2];
         String sam = properties[3];
         String plat = properties[5];
+        String version = properties[6];
         String mxr = properties[7];
         String mxf = properties[8];
-        String verfm = properties[9];
 
         if (StringUtils.isEmpty(logic)) {
             validationErrorDTO.addFieldError("logic", "This property is required");
@@ -55,16 +55,16 @@ public class TerminalStringValidatorService {
             validationErrorDTO.addFieldError("plat", "Should be an integer value");
         }
 
+        if (StringUtils.isEmpty(version)) {
+            validationErrorDTO.addFieldError("version", "This property is required");
+        }
+
         if (!StringUtils.isEmpty(mxr) && isNotAnInteger(mxr)) {
             validationErrorDTO.addFieldError("mxr", "Should be an integer value");
         }
 
         if (!StringUtils.isEmpty(mxf) && isNotAnInteger(mxf)) {
             validationErrorDTO.addFieldError("mxf", "Should be an integer value");
-        }
-
-        if (StringUtils.isEmpty(verfm)) {
-            validationErrorDTO.addFieldError("verfm", "This property is required");
         }
 
         return validationErrorDTO;
