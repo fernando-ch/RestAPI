@@ -1,8 +1,11 @@
 package br.com.fcamacho.springrestapi.terminal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -12,7 +15,11 @@ import javax.validation.constraints.NotNull;
 public class Terminal {
 
     @Id
+    @GeneratedValue
+    private Long id;
+
     @NotNull
+    @Column(unique = true)
     private Integer logic;
 
     @NotEmpty
@@ -36,6 +43,15 @@ public class Terminal {
     private Integer mxf;
 
     private String verfm;
+
+    @JsonIgnore
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Integer getLogic() {
         return logic;
