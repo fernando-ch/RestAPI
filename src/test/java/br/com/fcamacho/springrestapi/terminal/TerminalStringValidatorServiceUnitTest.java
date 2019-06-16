@@ -173,12 +173,24 @@ public class TerminalStringValidatorServiceUnitTest {
     }
 
     @Test
-    public void shouldIgnoreFieldErrorsIfTotalFieldsIsInvalid() {
+    public void shouldIgnoreFieldErrorsIfTotalFieldsIsLessThanTheSpected() {
         String terminalString = ";123;PWWIN;0;F04A2E4088B;4;8.00b3;0;167d77216";
         ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
 
-        assertTrue(validationErrorDTO.hasErrors());assertThat(validationErrorDTO.getErrors(), hasSize(1));
+        assertTrue(validationErrorDTO.hasErrors());
+        assertThat(validationErrorDTO.getErrors(), hasSize(1));
         assertThat(validationErrorDTO.getErrors().get(0), is("Not all comma separated values are present, should be " + NUM_FIELDS));
+        assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
+    }
+
+    @Test
+    public void shouldIgnoreFieldErrorsIfTotalFieldsIsGreaterThanTheSpected() {
+        String terminalString = "44332211;123;PWWIN;0;F04A2E4088B;4;8.00b3;0;167d77216;PWWIN;";
+        ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
+
+        assertTrue(validationErrorDTO.hasErrors());
+        assertThat(validationErrorDTO.getErrors(), hasSize(1));
+        assertThat(validationErrorDTO.getErrors().get(0), is("Too many comma separated values are present, should be " + NUM_FIELDS));
         assertThat(validationErrorDTO.getFieldErrors(), hasSize(0));
     }
 
@@ -193,7 +205,7 @@ public class TerminalStringValidatorServiceUnitTest {
     }
 
     @Test
-    public void shouldNotAddErrorIfOnlyOptionFieldAreMissing() {
+    public void shouldNotAddErrorIfOnlyOptionalFieldsAreMissing() {
         String terminalString = "44332211;123;PWWIN;;;;8.00b3;;;";
         ValidationErrorDTO validationErrorDTO = terminalStringValidatorService.performValidations(terminalString);
 
