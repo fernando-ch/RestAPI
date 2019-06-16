@@ -30,7 +30,6 @@ public class TerminalControllerUnitTest {
     private TerminalStringValidatorService terminalStringValidatorServiceMock;
 
     private static final String BASE_URL = "/v1/terminal";
-    private static final int NUM_COMMAS = 9;
 
     @Test
     public void shouldRejectPostIfContentTypeIsNotTextHml() throws Exception {
