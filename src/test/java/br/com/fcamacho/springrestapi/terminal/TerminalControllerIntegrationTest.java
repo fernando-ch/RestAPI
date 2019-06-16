@@ -95,4 +95,28 @@ public class TerminalControllerIntegrationTest {
         assertThat(validationErrorDTO.getFieldErrors().get(0).getField(), is("logic"));
         assertThat(validationErrorDTO.getFieldErrors().get(0).getMessage(), is("This property must be unique"));
     }
+
+    @Test
+    public void shouldReturnPreviousSavedTerminal() {
+        String terminalString = "44332211;123;PWWIN;0;F04A2E4088B;4;8.00b3;1;16777216;PWWINV";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_HTML);
+        HttpEntity<String> request = new HttpEntity<>(terminalString, headers);
+
+        restTemplate.postForObject(baseUrl, request, Terminal.class);
+
+        Terminal terminal = restTemplate.getForObject(baseUrl + "/44332211", Terminal.class);
+
+        assertThat(terminal.getLogic(), is(44332211));
+        assertThat(terminal.getSerial(), is("123"));
+        assertThat(terminal.getModel(), is("PWWIN"));
+        assertThat(terminal.getSam(), is(0));
+        assertThat(terminal.getPtid(), is("F04A2E4088B"));
+        assertThat(terminal.getPlat(), is(4));
+        assertThat(terminal.getVersion(), is("8.00b3"));
+        assertThat(terminal.getMxr(), is(1));
+        assertThat(terminal.getMxf(), is(16777216));
+        assertThat(terminal.getVerfm(), is("PWWINV"));
+    }
 }

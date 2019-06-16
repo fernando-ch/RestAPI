@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,7 +31,7 @@ public class TerminalControllerUnitTest {
     private TerminalStringValidatorService terminalStringValidatorServiceMock;
 
     @MockBean
-    private TerminalService terminalService;
+    private TerminalService terminalServiceMock;
 
     private static final String BASE_URL = "/v1/terminal";
 
@@ -48,7 +49,7 @@ public class TerminalControllerUnitTest {
                 .contentType(MediaType.TEXT_PLAIN_VALUE))
                 .andExpect(status().isUnsupportedMediaType());
 
-        Mockito.verifyZeroInteractions(terminalStringValidatorServiceMock, terminalService);
+        Mockito.verifyZeroInteractions(terminalStringValidatorServiceMock, terminalServiceMock);
     }
 
     @Test
@@ -75,7 +76,7 @@ public class TerminalControllerUnitTest {
                 .andExpect(jsonPath("$.fieldErrors[1].message", is("error message 2")));
 
         Mockito.verify(terminalStringValidatorServiceMock, only()).performValidations(body);
-        Mockito.verifyZeroInteractions(terminalService);
+        Mockito.verifyZeroInteractions(terminalServiceMock);
     }
 
     @Test
@@ -95,7 +96,7 @@ public class TerminalControllerUnitTest {
         terminal.setMxf(16777216);
         terminal.setVerfm("PWWINV");
 
-        when(terminalService.createTerminal(body)).thenReturn(terminal);
+        when(terminalServiceMock.createTerminal(body)).thenReturn(terminal);
 
         MockHttpServletRequestBuilder builder = post(BASE_URL).contentType(MediaType.TEXT_HTML_VALUE).content(body);
         this.mockMvc.perform(builder)
@@ -113,6 +114,44 @@ public class TerminalControllerUnitTest {
                 .andExpect(jsonPath("$.verfm", is("PWWINV")));
 
         Mockito.verify(terminalStringValidatorServiceMock, only()).performValidations(body);
-        Mockito.verify(terminalService, only()).createTerminal(body);
+        Mockito.verify(terminalServiceMock, only()).createTerminal(body);
+    }
+
+    @Test
+    public void shouldReturnNotFoundIfNoTerminalIsFoundWithGivenLogic() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/123"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void shouldReturnSavedTerminalWithGivenLogic() throws Exception {
+        int logic = 44332211;
+        Terminal savedTerminal = new Terminal();
+        savedTerminal.setLogic(logic);
+        savedTerminal.setSerial("123");
+        savedTerminal.setModel("PWWIN");
+        savedTerminal.setSam(0);
+        savedTerminal.setPtid("F04A2E4088B");
+        savedTerminal.setPlat(4);
+        savedTerminal.setVersion("8.00b3");
+        savedTerminal.setMxr(1);
+        savedTerminal.setMxf(16777216);
+        savedTerminal.setVerfm("PWWINV");
+
+        when(terminalServiceMock.findTerminalByLogic(logic)).thenReturn(java.util.Optional.of(savedTerminal));
+
+        mockMvc.perform(get(BASE_URL + "/" + logic))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.logic", is(logic)))
+                .andExpect(jsonPath("$.serial", is("123")))
+                .andExpect(jsonPath("$.model", is("PWWIN")))
+                .andExpect(jsonPath("$.sam", is(0)))
+                .andExpect(jsonPath("$.ptid", is("F04A2E4088B")))
+                .andExpect(jsonPath("$.plat", is(4)))
+                .andExpect(jsonPath("$.version", is("8.00b3")))
+                .andExpect(jsonPath("$.mxr", is(1)))
+                .andExpect(jsonPath("$.mxf", is(16777216)))
+                .andExpect(jsonPath("$.verfm", is("PWWINV")));
     }
 }
