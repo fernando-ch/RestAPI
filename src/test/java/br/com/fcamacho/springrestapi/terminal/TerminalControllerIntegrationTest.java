@@ -1,6 +1,7 @@
 package br.com.fcamacho.springrestapi.terminal;
 
 import br.com.fcamacho.springrestapi.genericValidation.ValidationErrorDTO;
+import br.com.fcamacho.springrestapi.testUtils.RestResponsePage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,10 +11,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 
@@ -118,5 +120,40 @@ public class TerminalControllerIntegrationTest {
         assertThat(terminal.getMxr(), is(1));
         assertThat(terminal.getMxf(), is(16777216));
         assertThat(terminal.getVerfm(), is("PWWINV"));
+    }
+
+    @Test
+    public void shouldReturnAPaginatedResultSortedByLogicDesc() {
+        String templateTerminalString = ";123;PWWIN;0;F04A2E4088B;4;8.00b3;1;16777216;PWWINV";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_HTML);
+
+        for (int i = 1; i <= 10; i++) {
+            String terminalString = i + templateTerminalString;
+            HttpEntity<String> request = new HttpEntity<>(terminalString, headers);
+            restTemplate.postForObject(baseUrl, request, Terminal.class);
+        }
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .queryParam("page", 1)
+                .queryParam("size", 4)
+                .queryParam("sort", "logic,desc");
+
+        ParameterizedTypeReference<RestResponsePage<Terminal>> typeReference =
+                new ParameterizedTypeReference<RestResponsePage<Terminal>>() {};
+
+        ResponseEntity<RestResponsePage<Terminal>> responseEntity = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, null,
+                typeReference);
+
+        Page<Terminal> page = responseEntity.getBody();
+
+        assertThat(page.getTotalElements(), is(10L));
+        assertThat(page.getTotalPages(), is(3));
+        assertThat(page.getNumberOfElements(), is(4));
+        assertThat(page.getNumber(), is(1));
+        assertThat(page.getContent().get(0).getLogic(), is(6));
+        assertThat(page.getContent().get(1).getLogic(), is(5));
+        assertThat(page.getContent().get(2).getLogic(), is(4));
+        assertThat(page.getContent().get(3).getLogic(), is(3));
     }
 }

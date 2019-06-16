@@ -1,6 +1,8 @@
 package br.com.fcamacho.springrestapi.terminal;
 
 import br.com.fcamacho.springrestapi.genericValidation.ValidationErrorDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,11 @@ public class TerminalController {
     public TerminalController(TerminalStringValidatorService terminalStringValidatorService, TerminalService terminalService) {
         this.terminalStringValidatorService = terminalStringValidatorService;
         this.terminalService = terminalService;
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Page<Terminal> findAllTerminals(Pageable pageable) {
+        return terminalService.findAllTerminals(pageable);
     }
 
     @GetMapping(path = "{logic}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

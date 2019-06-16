@@ -27,7 +27,7 @@ public class TerminalServiceUnitTest {
     }
 
     @Test
-    public void shouldReturnAnSavedTerminal() {
+    public void shouldReturnASavedTerminal() {
         int logic = 44332211;
 
         Terminal savedTerminal = new Terminal();
