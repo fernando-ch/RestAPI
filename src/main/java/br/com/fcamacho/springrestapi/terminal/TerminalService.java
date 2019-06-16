@@ -3,6 +3,8 @@ package br.com.fcamacho.springrestapi.terminal;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Optional;
+
 @Service
 public class TerminalService {
 
@@ -10,6 +12,10 @@ public class TerminalService {
 
     public TerminalService(TerminalRepository terminalRepository) {
         this.terminalRepository = terminalRepository;
+    }
+
+    public Optional<Terminal> findTerminalByLogic(int logic) {
+        return terminalRepository.findByLogic(logic);
     }
 
     public Terminal createTerminal(String terminalString) {

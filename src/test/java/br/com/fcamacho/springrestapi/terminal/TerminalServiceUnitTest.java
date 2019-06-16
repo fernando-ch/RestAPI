@@ -7,10 +7,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.only;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class TerminalServiceUnitTest {
 
@@ -23,6 +24,30 @@ public class TerminalServiceUnitTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void shouldReturnAnSavedTerminal() {
+        int logic = 44332211;
+
+        Terminal savedTerminal = new Terminal();
+        savedTerminal.setLogic(44332211);
+        savedTerminal.setSerial("123");
+        savedTerminal.setModel("PWWIN");
+        savedTerminal.setSam(0);
+        savedTerminal.setPtid("F04A2E4088B");
+        savedTerminal.setPlat(4);
+        savedTerminal.setVersion("8.00b3");
+        savedTerminal.setMxr(1);
+        savedTerminal.setMxf(16777216);
+        savedTerminal.setVerfm("PWWINV");
+
+        when(terminalRepositoryMock.findByLogic(logic)).thenReturn(Optional.of(savedTerminal));
+
+        Terminal terminal = terminalService.findTerminalByLogic(logic).get();
+
+        assertThat(terminal, samePropertyValuesAs(savedTerminal));
+        verify(terminalRepositoryMock, only()).findByLogic(logic);
     }
 
     @Test
