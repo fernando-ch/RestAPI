@@ -48,7 +48,7 @@ public class TerminalControllerUnitTest {
                 .contentType(MediaType.TEXT_PLAIN_VALUE))
                 .andExpect(status().isUnsupportedMediaType());
 
-        Mockito.verifyZeroInteractions(terminalStringValidatorServiceMock);
+        Mockito.verifyZeroInteractions(terminalStringValidatorServiceMock, terminalService);
     }
 
     @Test
@@ -75,6 +75,7 @@ public class TerminalControllerUnitTest {
                 .andExpect(jsonPath("$.fieldErrors[1].message", is("error message 2")));
 
         Mockito.verify(terminalStringValidatorServiceMock, only()).performValidations(body);
+        Mockito.verifyZeroInteractions(terminalService);
     }
 
     @Test
