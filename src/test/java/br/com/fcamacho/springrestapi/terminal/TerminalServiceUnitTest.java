@@ -87,4 +87,45 @@ public class TerminalServiceUnitTest {
 
         Mockito.verify(terminalRepositoryMock, only()).save(terminal);
     }
+
+    @Test
+    public void shouldUpdateAllTerminalFields() {
+        TerminalUpdateDTO terminalUpdateDTO = new TerminalUpdateDTO();
+        terminalUpdateDTO.setSerial("123");
+        terminalUpdateDTO.setModel("PWWIN1");
+        terminalUpdateDTO.setSam(1);
+        terminalUpdateDTO.setPtid("F04A2E4088B1");
+        terminalUpdateDTO.setPlat(5);
+        terminalUpdateDTO.setVersion("8.00b31");
+        terminalUpdateDTO.setMxr(12);
+        terminalUpdateDTO.setMxf(16777217);
+        terminalUpdateDTO.setVerfm("PWWINV1");
+
+        Terminal terminal = new Terminal();
+        terminal.setLogic(1);
+        terminal.setSerial("1234");
+        terminal.setModel("PWWIN");
+        terminal.setSam(0);
+        terminal.setPtid("F04A2E4088B");
+        terminal.setPlat(4);
+        terminal.setVersion("8.00b3");
+        terminal.setMxr(1);
+        terminal.setMxf(16777216);
+        terminal.setVerfm("PWWINV");
+
+        terminalService.updateTerminal(terminalUpdateDTO, terminal);
+
+        assertThat(terminal.getLogic(), is(1));
+        assertThat(terminal.getSerial(), is("123"));
+        assertThat(terminal.getModel(), is("PWWIN1"));
+        assertThat(terminal.getSam(), is(1));
+        assertThat(terminal.getPtid(), is("F04A2E4088B1"));
+        assertThat(terminal.getPlat(), is(5));
+        assertThat(terminal.getVersion(), is("8.00b31"));
+        assertThat(terminal.getMxr(), is(12));
+        assertThat(terminal.getMxf(), is(16777217));
+        assertThat(terminal.getVerfm(), is("PWWINV1"));
+
+        Mockito.verify(terminalRepositoryMock, only()).save(terminal);
+    }
 }

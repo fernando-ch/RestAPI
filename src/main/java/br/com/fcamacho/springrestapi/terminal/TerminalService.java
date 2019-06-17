@@ -44,6 +44,20 @@ public class TerminalService {
         return terminal;
     }
 
+    public void updateTerminal(TerminalUpdateDTO terminalUpdateDTO, Terminal terminal) {
+        terminal.setSerial(terminalUpdateDTO.getSerial());
+        terminal.setModel(terminalUpdateDTO.getModel());
+        terminal.setSam(terminalUpdateDTO.getSam());
+        terminal.setPtid(terminalUpdateDTO.getPtid());
+        terminal.setPlat(terminalUpdateDTO.getPlat());
+        terminal.setVersion(terminalUpdateDTO.getVersion());
+        terminal.setMxr(terminalUpdateDTO.getMxr());
+        terminal.setMxf(terminalUpdateDTO.getMxf());
+        terminal.setVerfm(terminalUpdateDTO.getVerfm());
+
+        terminalRepository.save(terminal);
+    }
+
     private Integer toInteger(String s) {
         if (StringUtils.isEmpty(s)) {
             return null;
