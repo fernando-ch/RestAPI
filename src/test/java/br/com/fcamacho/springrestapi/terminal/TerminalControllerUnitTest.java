@@ -1,6 +1,7 @@
 package br.com.fcamacho.springrestapi.terminal;
 
 import br.com.fcamacho.springrestapi.genericValidation.ValidationErrorDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -12,12 +13,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -153,5 +156,25 @@ public class TerminalControllerUnitTest {
                 .andExpect(jsonPath("$.mxr", is(1)))
                 .andExpect(jsonPath("$.mxf", is(16777216)))
                 .andExpect(jsonPath("$.verfm", is("PWWINV")));
+    }
+
+    @Test
+    public void shouldReturnNotFoundWhenTryToUpdateATerminalThatDoesNotExist() throws Exception {
+        HashMap<String, Object> jsonMap = new LinkedHashMap<>();
+        jsonMap.put("serial", "124");
+        jsonMap.put("model", "PWWIN1");
+        jsonMap.put("sam", 1);
+        jsonMap.put("ptid", "F04A2E4088B1");
+        jsonMap.put("plat", 5);
+        jsonMap.put("version", "8.00b31");
+        jsonMap.put("mxr", 12);
+        jsonMap.put("mxf", 16777217);
+        jsonMap.put("verfm", "PWWINV1");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(jsonMap);
+
+        mockMvc.perform(put(BASE_URL + "/123").contentType(MediaType.APPLICATION_JSON_UTF8).content(jsonString))
+                .andExpect(status().isNotFound());
     }
 }
