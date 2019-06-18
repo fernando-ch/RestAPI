@@ -2,10 +2,15 @@
 
 This is a rest api for terminal data. This project was created as a challenge. 
 
+The project was made using Java 8 and Spring Boot 2.1.5. The database used is 
+an in-memory database called H2. The Java and Spring combination was choose for
+this project for my professional experience with both an i also believe the two
+are a great language and framework for API development.
+
 ## Pre-requisites
 
 The only pre-requisite to run this project is to have the Java Runtime 
-Environment (JRE) installed. 
+Environment (JRE) 1.8 or greater installed. 
 
 ## Installation
 
