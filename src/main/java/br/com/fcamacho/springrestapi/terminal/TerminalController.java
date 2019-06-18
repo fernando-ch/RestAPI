@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -48,5 +49,17 @@ public class TerminalController {
 
         Terminal terminal = terminalService.createTerminal(terminalString);
         return ResponseEntity.status(HttpStatus.CREATED).body(terminal);
+    }
+
+    @PutMapping(path = "{logic}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    ResponseEntity updateTerminal(@PathVariable int logic, @RequestBody @Valid TerminalUpdateDTO terminalUpdateDTO) {
+        Optional<Terminal> optionalTerminal = terminalService.findTerminalByLogic(logic);
+
+        if (optionalTerminal.isPresent()) {
+            terminalService.updateTerminal(terminalUpdateDTO, optionalTerminal.get());
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }
