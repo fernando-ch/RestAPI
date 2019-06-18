@@ -104,3 +104,12 @@ There are 4 endpoints in the API:
     * This endpoint, different from the post, accepts a json input following the
     json schema to update an existing terminal.
 
+## Heroku
+
+This API is currently deployed at Heroku in the following url:
+* https://pure-crag-33024.herokuapp.com/
+
+Please, note that this Heroku instance is free so the server will enter sleep mode
+after 30 minutes of inactivity. For that reason, a request made after the server
+is sleeping will be much more slow then the next request because the server is
+waking up.
